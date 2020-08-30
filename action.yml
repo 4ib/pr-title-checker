@@ -7,9 +7,17 @@ on: [pull_request]
 inputs:
   GITHUB_TOKEN:
     required: true
-  configuration-path:
-    description: "The path for the label configurations"
-    default: ".github/pr-title-styles.json"
+  regex:
+    description: "Regular expression to test PR title"
+    required: true
+  label_name:
+    description: "Label that will be given to the project if its name does not match the regular expression"
+    required: false
+    default: "bad-title"
+  label_color:
+    description: "Label color"
+    required: false
+    default: "CCCCCC"
 runs:
   using: "node12"
   main: "dist/index.js"

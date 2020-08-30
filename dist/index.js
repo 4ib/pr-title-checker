@@ -175,50 +175,38 @@ __webpack_require__.r(__webpack_exports__);
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 const issue_number = process.env.GITHUB_REF.split("/")[2];
-const configPath = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("configuration-path");
+const regex = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("regex");
+const label_name = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("label_name");
+const label_color = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("label_color");
 const { Octokit } = __webpack_require__(725);
 
 const octokit = new Octokit();
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
     const title = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.payload.pull_request.title;
-
-    let a = await getJSON(configPath);
-    let { CHECKS, LABEL } = JSON.parse(a);
-    LABEL.name = LABEL.name || "title needs formatting";
-    LABEL.color = LABEL.color || "eee";
-
+    
     try {
       let createResponse = await octokit.issues.createLabel({
         owner,
         repo,
-        name: LABEL.name,
-        color: LABEL.color,
+        name: label_name,
+        color: label_color,
       });
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Creating label (${LABEL.name}) - ` + createResponse.status);
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Creating label (${label_name}) - ` + createResponse.status);
     } catch (error) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Label (${LABEL.name}) exists.`);
-    }
-    if (CHECKS.prefixes && CHECKS.prefixes.length) {
-      for (let i = 0; i < CHECKS.prefixes.length; i++) {
-        if (title.startsWith(CHECKS.prefixes[i])) {
-          removeLabel(LABEL.name);
-          return;
-        }
-      }
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Label (${label_name}) exists.`);
     }
 
-    if (CHECKS.regexp) {
-      let re = new RegExp(CHECKS.regexp);
+    if (regex) {
+      let re = new RegExp(regex);
       if (re.test(title)) {
-        removeLabel(LABEL.name);
+        await removeLabel(label_name);
         return;
       }
     }
 
-    addLabel(LABEL.name);
+    await addLabel(label_name);
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(error);
   }
@@ -252,17 +240,6 @@ async function removeLabel(name) {
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("All OK");
   }
-}
-
-async function getJSON(repoPath) {
-  const response = await octokit.repos.getContent({
-    owner,
-    repo,
-    path: repoPath,
-    ref: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.sha,
-  });
-
-  return Buffer.from(response.data.content, response.data.encoding).toString();
 }
 
 run();
