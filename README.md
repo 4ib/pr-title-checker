@@ -20,10 +20,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: 4ib/pr-title-checker@v1.0.0
+      - uses: 4ib/pr-title-checker@v1.1.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          regex: "\[(Feature|Fix|Hotfix|Refactor)\] [-\w]+: .+"
+          regex: "\\[(Feature|Fix|Hotfix|Refactor)\\] [-\\w]+: .+"
           label_name: bad-title
-          label_color: CCCCCC
+          label_color: ffDD00
 ```
+
+## Thanks
+
+This action based on https://github.com/thehanimo/pr-title-checker
+
+## License
+
+[MIT](https://github.com/4ib/pr-title-checker/blob/master/LICENSE)
